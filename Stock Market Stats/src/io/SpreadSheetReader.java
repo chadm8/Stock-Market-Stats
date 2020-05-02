@@ -26,6 +26,7 @@ public class SpreadSheetReader
   private String mostRecentDate;
   private String fileInputPath;
   private String fileOutputPath;
+  private String rawDataPath;
 
   /**
    * The constructor.
@@ -38,6 +39,7 @@ public class SpreadSheetReader
     map = new LinkedHashMap<>();
     this.fileInputPath = fileInputPath;
     this.fileOutputPath = fileOutputPath;
+    rawDataPath = fileOutputPath;
     mostRecentDate = null;
   }
 
@@ -64,7 +66,7 @@ public class SpreadSheetReader
     Double openVal = null;
     Double closeVal = null;
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(fileOutputPath)))
+    try (BufferedReader reader = new BufferedReader(new FileReader(rawDataPath)))
     {
       reader.readLine(); // gets rid of the spreadsheet header
       line = reader.readLine();

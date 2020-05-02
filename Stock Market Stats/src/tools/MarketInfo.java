@@ -15,6 +15,9 @@ public class MarketInfo
 
   public MarketInfo(String fileInputPath, String fileOutputPath)
   {
+    percentDifferentialMap = new HashMap<String, Double>();
+    pointDifferentialMap = new HashMap<String, Double>();
+    mostRecentDate = Calendar.getInstance();
     reader = new SpreadSheetReader(fileInputPath, fileOutputPath);
     reader.writeRawDataToFile();
     reader.readOutputSheet();
