@@ -1,10 +1,13 @@
 package io;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -19,8 +22,10 @@ import tools.Pair;
  */
 public class SpreadSheetReader
 {
-  private static LinkedHashMap<String, Pair<Double, Double>> map;
-  private static HashMap<String, Pair<Double, Double>> dateDifferentialMap;
+  private LinkedHashMap<String, Pair<Double, Double>> map;
+  private String mostRecentDate;
+  private String fileInputPath;
+  private String fileOutputPath;
 
   /**
    * The constructor.
@@ -28,28 +33,40 @@ public class SpreadSheetReader
    * @param filePath
    *          The file path
    */
-  public SpreadSheetReader(String filePath)
+  public SpreadSheetReader(String fileInputPath, String fileOutputPath)
   {
     map = new LinkedHashMap<>();
-    dateDifferentialMap = new HashMap<>();
-    readSheet(filePath);
+    this.fileInputPath = fileInputPath;
+    this.fileOutputPath = fileOutputPath;
+    mostRecentDate = null;
   }
 
   /**
-   * Reads the date and the closing price of the stock, ETF, or other medium.
+   * Gets the first date in the spreadsheet.
+   * 
+   * @return The first date
+   */
+  public String getMostRecentDate()
+  {
+    return mostRecentDate;
+  }
+
+  /**
+   * Reads the date and the closing price of the stock, ETF, index, or other medium.
    * 
    * @param filePath
    *          The file path
    */
-  public void readSheet(String filePath)
+  public void readOutputSheet()
   {
     String line = "";
     String date = null;
     Double openVal = null;
     Double closeVal = null;
 
-    try (BufferedReader reader = new BufferedReader(new FileReader(filePath)))
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileOutputPath)))
     {
+      reader.readLine(); // gets rid of the spreadsheet header
       line = reader.readLine();
 
       while ((line = reader.readLine()) != null)
@@ -65,6 +82,8 @@ public class SpreadSheetReader
         map.put(date, values);
       }
 
+      mostRecentDate = date;
+
     }
     catch (IOException e)
     {
@@ -72,33 +91,19 @@ public class SpreadSheetReader
     }
   }
 
-  /**
-   * Writes the specific values in the HashMap to a file with the name provided.
-   * 
-   * @param fileName
-   *          The file name
-   * @param map
-   *          The map of dates and values
-   */
-  public void writeRawDataToFile(String fileName)
+  public void writeRawDataToFile()
   {
-    try
+    try (
+        BufferedInputStream inputStream = new BufferedInputStream(
+            new URL(fileInputPath).openStream());
+        FileOutputStream fileOS = new FileOutputStream(fileOutputPath))
     {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-
-      writer.write(map.size() + "\n\n");
-
-      for (String key : map.keySet())
+      byte data[] = new byte[1024];
+      int byteContent;
+      while ((byteContent = inputStream.read(data, 0, 1024)) != -1)
       {
-        String date = key;
-        Pair<Double, Double> pair = map.get(date);
-        Double openVal = pair.getOpen();
-        Double closeVal = pair.getClose();
-
-        writer.write(String.format(date + "  Open: %.2f  Close: %.2f\n", openVal, closeVal));
-        writer.flush();
+        fileOS.write(data, 0, byteContent);
       }
-      writer.close();
     }
     catch (IOException e)
     {
@@ -106,22 +111,46 @@ public class SpreadSheetReader
     }
   }
 
-  /**
-   * Gets the map of the dates and the percent and point changes.
-   * 
-   * @return The map
-   */
-  public static HashMap<String, Pair<Double, Double>> getDifferentialMap()
-  {
-    return dateDifferentialMap;
-  }
+  // /**
+  // * Writes the specific values in the HashMap to a file with the name provided.
+  // *
+  // * @param fileName
+  // * The file name
+  // * @param map
+  // * The map of dates and values
+  // */
+  // public void writeRawDataToFile(String fileName)
+  // {
+  // try
+  // {
+  // BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+  //
+  // writer.write(map.size() + "\n\n");
+  //
+  // for (String key : map.keySet())
+  // {
+  // String date = key;
+  // Pair<Double, Double> pair = map.get(date);
+  // Double openVal = pair.getOpen();
+  // Double closeVal = pair.getClose();
+  //
+  // writer.write(String.format(date + " Open: %.2f Close: %.2f\n", openVal, closeVal));
+  // writer.flush();
+  // }
+  // writer.close();
+  // }
+  // catch (IOException e)
+  // {
+  // e.printStackTrace();
+  // }
+  // }
 
   /**
    * Gets the map of dates and the open and close values.
    * 
    * @return The map
    */
-  public static LinkedHashMap<String, Pair<Double, Double>> getMap()
+  public LinkedHashMap<String, Pair<Double, Double>> getMap()
   {
     return map;
   }
