@@ -27,7 +27,7 @@ public class FractionalChangeCalculator
    *          The amount of time to compare
    */
   public static void addPercentChanges(LinkedHashMap<String, Pair<Double, Double>> valuesMap,
-      HashMap<String, Double> resultMap, int timeSpan)
+      HashMap<String, Pair<Double, Double>> resultMap, int timeSpan)
   {
     for (String key : SpreadSheetReader.getMap().keySet())
     {
