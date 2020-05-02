@@ -19,9 +19,8 @@ import tools.Pair;
  */
 public class SpreadSheetReader
 {
-  private static LinkedHashMap<String, Double> closeMap;
-  private static LinkedHashMap<String, Pair<Double, Double>> oneDayMap;
-  private static HashMap<String, Double> dateDifferentialMap;
+  private static LinkedHashMap<String, Pair<Double, Double>> map;
+  private static HashMap<String, Pair<Double, Double>> dateDifferentialMap;
 
   /**
    * The constructor.
@@ -31,7 +30,8 @@ public class SpreadSheetReader
    */
   public SpreadSheetReader(String filePath)
   {
-    closeMap = new LinkedHashMap<>();
+    map = new LinkedHashMap<>();
+    dateDifferentialMap = new HashMap<>();
     readSheet(filePath);
   }
 
@@ -45,7 +45,8 @@ public class SpreadSheetReader
   {
     String line = "";
     String date = null;
-    Double val = Double.valueOf(0.0);
+    Double openVal = null;
+    Double closeVal = null;
 
     try (BufferedReader reader = new BufferedReader(new FileReader(filePath)))
     {
@@ -55,9 +56,13 @@ public class SpreadSheetReader
       {
         String[] lineData = line.split(",");
         date = lineData[0];
-        val = Double.parseDouble(lineData[4]);
 
-        closeMap.put(date, val);
+        openVal = Double.parseDouble(lineData[1]);
+        closeVal = Double.parseDouble(lineData[4]);
+
+        Pair<Double, Double> values = new Pair<>(openVal, closeVal);
+
+        map.put(date, values);
       }
 
     }
@@ -75,7 +80,7 @@ public class SpreadSheetReader
    * @param map
    *          The map of dates and values
    */
-  public void writeRawDataToFile(String fileName, HashMap<String, Double> map)
+  public void writeRawDataToFile(String fileName)
   {
     try
     {
@@ -86,9 +91,11 @@ public class SpreadSheetReader
       for (String key : map.keySet())
       {
         String date = key;
-        Double val = map.get(date);
+        Pair<Double, Double> pair = map.get(date);
+        Double openVal = pair.getOpen();
+        Double closeVal = pair.getClose();
 
-        writer.write(String.format(date + "  %.2f\n", val));
+        writer.write(String.format(date + "  Open: %.2f  Close: %.2f\n", openVal, closeVal));
         writer.flush();
       }
       writer.close();
@@ -100,13 +107,23 @@ public class SpreadSheetReader
   }
 
   /**
-   * Gets the map of dates and close values.
+   * Gets the map of the dates and the percent and point changes.
    * 
    * @return The map
    */
-  public static LinkedHashMap<String, Double> getCloseMap()
+  public static HashMap<String, Pair<Double, Double>> getDifferentialMap()
   {
-    return closeMap;
+    return dateDifferentialMap;
   }
-  
+
+  /**
+   * Gets the map of dates and the open and close values.
+   * 
+   * @return The map
+   */
+  public static LinkedHashMap<String, Pair<Double, Double>> getMap()
+  {
+    return map;
+  }
+
 }

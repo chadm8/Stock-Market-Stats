@@ -6,8 +6,8 @@ public class Main
 {
   public static void main(String[] args) throws IOException
   {
-    //SpreadSheetReader ssr = new SpreadSheetReader("C:\\Users\\chado\\Downloads\\s&pHistorical.csv");
-    //ssr.writeRawDataToFile("data.txt", ssr.getMap());
+    SpreadSheetReader ssr = new SpreadSheetReader("C:\\Users\\chado\\Downloads\\s&pHistorical.csv");
+    ssr.writeRawDataToFile("data.txt");
     System.out.println(findAvailableDay("12/3/1999"));
   }
   
