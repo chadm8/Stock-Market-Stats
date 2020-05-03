@@ -15,7 +15,7 @@ import tools.Pair;
  * @version 2 May 2020
  *
  */
-public class FractionalChangeCalculator
+public class ValueChangeCalculator
 {
 
   /**
@@ -28,7 +28,7 @@ public class FractionalChangeCalculator
    * @param timeSpan
    *          The amount of time to compare
    */
-  public static void addPercentChanges(MarketInfo marketInfo, int daySpan)
+  public static void addDateDifferentialChanges(MarketInfo marketInfo, int daySpan)
   {
     boolean isDone = false;
     Iterator<String> it = marketInfo.getMap().keySet().iterator();
@@ -40,32 +40,41 @@ public class FractionalChangeCalculator
       if (canFindNextDate(marketInfo, key, daySpan))
       {
         String date1 = key;
-        String date2 = findNextAvailableDay(daySpan, key, marketInfo.getMap());
-        Double val = marketInfo.getMap().get(date1).getOpen();
-        Double val2 = marketInfo.getMap().get(date2).getClose();
-        // ENDED HERE... CREATE PRIVATE CALCULATE METHOD
+        String date2;
+        Double first, second;
+
+        if (daySpan == 0)
+        {
+          date2 = date1;
+          first = marketInfo.getMap().get(date1).getOpen();
+        }
+        else
+        {
+          date2 = findNextAvailableDay(daySpan, key, marketInfo.getMap());
+          first = marketInfo.getMap().get(date1).getClose();
+        }
+
+        second = marketInfo.getMap().get(date2).getClose();
+
+        Double pointChange = second - first;
+        datesHelper(marketInfo.getPointDifferentialMap(), pointChange, date1, date2, daySpan);
+
+        if (pointChange > 0)
+        {
+          Double percInc = calculateIncreasePercentage(first, second);
+          datesHelper(marketInfo.getPercentDifferentialMap(), percInc, date1, date2, daySpan);
+        }
+        else if (pointChange < 0)
+        {
+          Double percDec = -calculateDecreasePercentage(first, second);
+          datesHelper(marketInfo.getPercentDifferentialMap(), percDec, date1, date2, daySpan);
+        }
       }
       else
       {
         isDone = true;
       }
     }
-  }
-
-  /**
-   * Computes the point change over the time span given throughout the historical data.
-   * 
-   * @param valuesMap
-   *          The map with open and close dates
-   * @param resultMap
-   *          The map to insert the percentage change
-   * @param timeSpan
-   *          The amount of time to compare
-   */
-  public static void addPointChanges(LinkedHashMap<String, Pair<Double, Double>> valuesMap,
-      HashMap<String, Double> resultMap, int timeSpan)
-  {
-
   }
 
   /**
@@ -80,12 +89,9 @@ public class FractionalChangeCalculator
   private static String findNextAvailableDay(int daySpan, String dayToCompare,
       LinkedHashMap<String, Pair<Double, Double>> valuesMap)
   {
-    if (daySpan == 1)
-      return dayToCompare;
-
     String retVal = null;
 
-    Calendar cal = NextDayCalculator.makeCalendarDate(dayToCompare);
+    Calendar cal = CalendarCalculator.makeCalendarDate(dayToCompare);
     cal.add(Calendar.DAY_OF_MONTH, daySpan);
 
     // date values after day span is taken into account
@@ -95,8 +101,8 @@ public class FractionalChangeCalculator
 
     // ensures a consistent format with the spreadsheet
     // if the date is 11-1-3, it changes to 11-01-03
-    String sMonth2 = month2 > 10 ? "0" + month2 : "" + month2;
-    String sDay2 = day2 > 10 ? "0" + day2 : "" + day2;
+    String sMonth2 = month2 < 10 ? "0" + month2 : "" + month2;
+    String sDay2 = day2 < 10 ? "0" + day2 : "" + day2;
 
     retVal = String.format("%d-%s-%s", year2, sMonth2, sDay2);
 
@@ -105,6 +111,16 @@ public class FractionalChangeCalculator
     else
       // if the map does not contain the date, one day gets added until a date is valid
       return findNextAvailableDay(1, retVal, valuesMap);
+  }
+
+  private static Double calculateIncreasePercentage(Double first, Double second)
+  {
+    return ((second - first) / first) * 100;
+  }
+
+  private static Double calculateDecreasePercentage(Double first, Double second)
+  {
+    return ((first - second) / first) * 100;
   }
 
   /**
@@ -120,10 +136,23 @@ public class FractionalChangeCalculator
    */
   private static boolean canFindNextDate(MarketInfo marketInfo, String date, int daySpan)
   {
-    Calendar cal = NextDayCalculator.makeCalendarDate(date);
+    Calendar cal = CalendarCalculator.makeCalendarDate(date);
     cal.add(Calendar.DAY_OF_MONTH, daySpan);
 
     return cal.before(marketInfo.getMostRecentCalendarDate());
+  }
+
+  private static void datesHelper(HashMap<String, Double> map, Double value, String date1,
+      String date2, int daySpan)
+  {
+    if (daySpan > 1)
+    {
+      map.put(date1 + " to " + date2, value);
+    }
+    else
+    {
+      map.put(date2, value);
+    }
   }
 
 }
