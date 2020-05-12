@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.util.Calendar;
 
+import gui.StockMarketStatsWindow;
 import tools.MarketInfo;
 
 /**
@@ -22,6 +23,8 @@ public class StockMarketStats
     System.out.println(info.getLargestPercentageIncreases(10));
     System.out.println(info.getLargestPointDecreases(10));
     System.out.println(info.getLargestPointIncreases(10));
+    
+    new StockMarketStatsWindow();
   }
 
 }
