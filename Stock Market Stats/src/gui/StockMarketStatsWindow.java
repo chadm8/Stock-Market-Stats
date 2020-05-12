@@ -8,6 +8,9 @@ public class StockMarketStatsWindow extends JFrame
 {
   private static final long serialVersionUID = 1L;
 
+  /**
+   * The constructor.
+   */
   public StockMarketStatsWindow()
   {
     this.setLayout(new BorderLayout(40, 40));
