@@ -15,14 +15,13 @@ public class StockMarketStats
 {
   public static void main(String[] args) throws IOException
   {
-//    MarketInfo info = new MarketInfo(
-//        "https://query1.finance.yahoo.com/v7/finance/download/TSLA?period1=1277769600&period2=1589155200&interval=1d&events=history",
-//        "data.txt");
+    //MarketInfo info = new MarketInfo(
+        //"https://query1.finance.yahoo.com/v7/finance/download/%5EGSPC?period1=-1325635200&period2=1590105600&interval=1d&events=history");
 //    info.calculateDateDifferentialValues(1);
-//    System.out.println(info.getLargestPercentageDecreases(10));
-//    System.out.println(info.getLargestPercentageIncreases(10));
-//    System.out.println(info.getLargestPointDecreases(10));
-//    System.out.println(info.getLargestPointIncreases(10));
+//    System.out.println(info.getLargestPercentageDecreasesString(10));
+//    System.out.println(info.getLargestPercentageIncreasesString(10));
+//    System.out.println(info.getLargestPointDecreasesString(10));
+//    System.out.println(info.getLargestPointIncreasesString(10));
     
     new StockMarketStatsWindow();
   }

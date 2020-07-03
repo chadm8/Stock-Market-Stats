@@ -2,11 +2,10 @@ package tools;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import calculating.ValueChangeCalculator;
 import io.SpreadSheetReader;
@@ -35,17 +34,16 @@ public class MarketInfo
    * @param fileOutputPath
    *          The file output path
    */
-  public MarketInfo(String fileInputPath, String fileOutputPath)
+  public MarketInfo(String fileInputPath)
   {
     percentDifferentialMap = new HashMap<>();
     pointDifferentialMap = new HashMap<>();
     sortedPercentList = new ArrayList<>();
     sortedPointList = new ArrayList<>();
-    reader = new SpreadSheetReader(fileInputPath, fileOutputPath);
+    reader = new SpreadSheetReader(fileInputPath);
     mostRecentDate = Calendar.getInstance();
 
-    reader.writeRawDataToFile();
-    reader.readOutputSheet();
+    reader.readRawDataAndAssignValues();
     setMostRecentDate(getMostRecentStringDate());
   }
 
@@ -98,10 +96,10 @@ public class MarketInfo
    *          The number of date differential values wanted
    * @return The String form of the values in sorted form
    */
-  public String getLargestPercentageIncreases(int amountOfValues)
+  public ArrayList<Map.Entry<String, Double>> getLargestPercentageIncreases(int amountOfValues,
+      boolean allowDayOverlaps)
   {
-    return "Largest Percent Increases\n\n"
-        + getLargestIncreasesHelper(amountOfValues, sortedPercentList);
+    return getLargestIncreasesHelper(amountOfValues, sortedPercentList, allowDayOverlaps);
   }
 
   /**
@@ -111,10 +109,10 @@ public class MarketInfo
    *          The number of date differential values wanted
    * @return The String form of the values in sorted form
    */
-  public String getLargestPercentageDecreases(int amountOfValues)
+  public ArrayList<Map.Entry<String, Double>> getLargestPercentageDecreases(int amountOfValues,
+      boolean allowDayOverlaps)
   {
-    return "Largest Percent Decreases\n\n"
-        + getLargestDecreasesHelper(amountOfValues, sortedPercentList);
+    return getLargestDecreasesHelper(amountOfValues, sortedPercentList, allowDayOverlaps);
   }
 
   /**
@@ -124,10 +122,10 @@ public class MarketInfo
    *          The number of date differential values wanted
    * @return The String form of the values in sorted form
    */
-  public String getLargestPointIncreases(int amountOfValues)
+  public ArrayList<Map.Entry<String, Double>> getLargestPointIncreases(int amountOfValues,
+      boolean allowDayOverlaps)
   {
-    return "Largest Point Increases\n\n"
-        + getLargestIncreasesHelper(amountOfValues, sortedPointList);
+    return getLargestIncreasesHelper(amountOfValues, sortedPointList, allowDayOverlaps);
   }
 
   /**
@@ -137,10 +135,32 @@ public class MarketInfo
    *          The number of date differential values wanted
    * @return The String form of the values in sorted form
    */
-  public String getLargestPointDecreases(int amountOfValues)
+  public ArrayList<Map.Entry<String, Double>> getLargestPointDecreases(int amountOfValues,
+      boolean allowDayOverlaps)
   {
-    return "Largest Point Decreases\n\n"
-        + getLargestDecreasesHelper(amountOfValues, sortedPointList);
+    return getLargestDecreasesHelper(amountOfValues, sortedPointList, allowDayOverlaps);
+  }
+
+  public String getLargestPercentageIncreasesString(int amountOfValues, boolean allowDayOverlaps)
+  {
+    return getLargestValuesStringHelper(
+        getLargestPercentageIncreases(amountOfValues, allowDayOverlaps));
+  }
+
+  public String getLargestPercentageDecreasesString(int amountOfValues, boolean allowDayOverlaps)
+  {
+    return getLargestValuesStringHelper(
+        getLargestPercentageDecreases(amountOfValues, allowDayOverlaps));
+  }
+
+  public String getLargestPointIncreasesString(int amountOfValues, boolean allowDayOverlaps)
+  {
+    return getLargestValuesStringHelper(getLargestPointIncreases(amountOfValues, allowDayOverlaps));
+  }
+
+  public String getLargestPointDecreasesString(int amountOfValues, boolean allowDayOverlaps)
+  {
+    return getLargestValuesStringHelper(getLargestPointDecreases(amountOfValues, allowDayOverlaps));
   }
 
   /**
@@ -213,23 +233,20 @@ public class MarketInfo
    *          The sorted ArrayList
    * @return A String of the largest increases
    */
-  private String getLargestIncreasesHelper(int amountOfValues,
-      ArrayList<Map.Entry<String, Double>> list)
+  private ArrayList<Map.Entry<String, Double>> getLargestIncreasesHelper(int amountOfValues,
+      ArrayList<Map.Entry<String, Double>> list, boolean allowDayOverlaps)
   {
-    String result = "";
+    ArrayList<Map.Entry<String, Double>> tmp = new ArrayList<Map.Entry<String, Double>>();
     int lastIndex = list.size() - 1;
     int amOfVals = amountOfValues;
-    int counter = 1;
 
     for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
     {
-      result += String.format(counter + ". " + list.get(i).getKey() + ": %.2f\n",
-          list.get(i).getValue());
+      tmp.add(list.get(i));
       amOfVals--;
-      counter++;
     }
 
-    return result;
+    return tmp;
   }
 
   /**
@@ -241,22 +258,40 @@ public class MarketInfo
    *          The sorted ArrayList
    * @return A String of the largest decreases
    */
-  private String getLargestDecreasesHelper(int amountOfValues,
-      ArrayList<Map.Entry<String, Double>> list)
+  private ArrayList<Map.Entry<String, Double>> getLargestDecreasesHelper(int amountOfValues,
+      ArrayList<Map.Entry<String, Double>> list, boolean allowDayOverlaps)
   {
-    String result = "";
+    ArrayList<Map.Entry<String, Double>> tmp = new ArrayList<Map.Entry<String, Double>>();
     int amOfVals = amountOfValues;
-    int counter = 1;
 
     for (int i = 0; i < list.size() && amOfVals != 0; i++)
     {
-      result += String.format(counter + ". " + list.get(i).getKey() + ": %1.2f\n",
-          list.get(i).getValue());
+      tmp.add(list.get(i));
       amOfVals--;
-      counter++;
     }
 
-    return result;
+    return tmp;
+  }
+
+  private String getLargestValuesStringHelper(ArrayList<Map.Entry<String, Double>> list)
+  {
+    Iterator<Map.Entry<String, Double>> it = list.iterator();
+    String retVal = "";
+    //int counter = 1;
+
+    while (it.hasNext())
+    {
+      Map.Entry<String, Double> entry = it.next();
+      String key = entry.getKey();
+      Double val = entry.getValue();
+
+      //retVal += String.format("%d.  %s: %.2f\n", counter, key, val);
+      retVal += String.format("%s: %.2f\n", key, val);
+
+      //counter++;
+    }
+
+    return retVal;
   }
 
 }

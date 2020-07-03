@@ -50,7 +50,17 @@ public class ValueChangeCalculator
         }
         else
         {
-          date2 = findNextAvailableDay(daySpan, key, marketInfo.getMap());
+          if (canFindNextDate(marketInfo, key, daySpan))
+            date2 = findNextAvailableDay(marketInfo, key, marketInfo.getMap(), daySpan);
+          else
+            date2 = null;
+
+          if (date2 == null)
+          {
+            System.err.print("Could not find the next date");
+            return;
+          }
+
           first = marketInfo.getMap().get(date1).getClose();
         }
 
@@ -86,8 +96,8 @@ public class ValueChangeCalculator
    *          The first day
    * @return The next available day from the day to compare
    */
-  private static String findNextAvailableDay(int daySpan, String dayToCompare,
-      LinkedHashMap<String, Pair<Double, Double>> valuesMap)
+  private static String findNextAvailableDay(MarketInfo marketInfo, String dayToCompare,
+      LinkedHashMap<String, Pair<Double, Double>> valuesMap, int daySpan)
   {
     String retVal = null;
 
@@ -110,7 +120,7 @@ public class ValueChangeCalculator
       return retVal;
     else
       // if the map does not contain the date, one day gets added until a date is valid
-      return findNextAvailableDay(1, retVal, valuesMap);
+      return findNextAvailableDay(marketInfo, retVal, valuesMap, 1);
   }
 
   private static Double calculateIncreasePercentage(Double first, Double second)
