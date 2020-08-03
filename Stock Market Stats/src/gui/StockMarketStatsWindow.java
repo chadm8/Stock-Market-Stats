@@ -22,6 +22,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
@@ -32,6 +33,7 @@ import javax.swing.JTextPane;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 
+import tools.GUIConstants;
 import tools.MarketInfo;
 
 /**
@@ -45,12 +47,6 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 {
   private static final long serialVersionUID = 1L;
 
-  private static final String FONT_NAME = "TimesRoman";
-  private static final int FONT_STYLE = Font.PLAIN;
-  private static final Color DARK_GRAY = new Color(77, 77, 77);
-  private static final Color MEDIUM_GRAY = new Color(115, 115, 115);
-  private static final Color LIGHT_GRAY = new Color(166, 166, 166);
-
   private Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
   private JButton calculateButton;
@@ -58,11 +54,11 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
   private JLabel titleLabel;
 
-  private JTextPane percentIncreaseTextPane;
-  private JTextPane percentDecreaseTextPane;
-  private JTextPane pointIncreaseTextPane;
-  private JTextPane pointDecreaseTextPane;
-  private JTextPane additionalInfoTextPane;
+  private StockListPane percentIncreasePane;
+  private StockListPane pointIncreasePane;
+  private StockListPane percentDecreasePane;
+  private StockListPane pointDecreasePane;
+  private StockListPane additionalInfoPane;
 
   private JPanel upperPanel;
   private JPanel lowerPanel;
@@ -89,17 +85,17 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     this.setLayout(new GridLayout(2, 0, 20, 20));
     this.setSize(screenSize.width / 2, screenSize.height / 2);
     this.setExtendedState(JFrame.MAXIMIZED_BOTH);
-    this.setBackground(DARK_GRAY);
+    this.setBackground(GUIConstants.DARK_GRAY);
     this.getRootPane().setBorder(BorderFactory.createEmptyBorder(100, 30, 30, 30));
 
     addToPanels();
     setAttributes();
     addListeners(this.getRootPane());
 
-    // pack();
     this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
     this.setVisible(true);
+
     titleLabel.requestFocus();
   }
 
@@ -228,11 +224,12 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     timeSpanPanel.add(calendarDaysButton);
     timeSpanPanel.add(marketDaysButton);
 
-    scrollPaneToPanelHelper(percentIncreaseTextPane, lowerPanel);
-    scrollPaneToPanelHelper(percentDecreaseTextPane, lowerPanel);
-    scrollPaneToPanelHelper(pointIncreaseTextPane, lowerPanel);
-    scrollPaneToPanelHelper(pointDecreaseTextPane, lowerPanel);
-    scrollPaneToPanelHelper(additionalInfoTextPane, lowerPanel);
+    lowerPanel.add(percentIncreasePane);
+    lowerPanel.add(pointIncreasePane);
+    lowerPanel.add(percentDecreasePane);
+    lowerPanel.add(pointDecreasePane);
+    lowerPanel.add(additionalInfoPane);
+
   }
 
   private void calculateButtonHelper()
@@ -251,17 +248,15 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     }
 
     int daySpan = (int) daySpanSpinner.getValue();
-    int numberOfResults = (int) numberOfResultsSpinner.getValue();
+    int amountOfValues = (int) numberOfResultsSpinner.getValue();
     MarketInfo marketInfo = new MarketInfo(textField.getText());
 
-    marketInfo.calculateDateDifferentialValues(daySpan);
+    marketInfo.calculateDateDifferentialValues(daySpan, calendarDaysButton.isSelected());
 
-    percentIncreaseTextPane
-        .setText(marketInfo.getLargestPercentageIncreasesString(numberOfResults, true));
-    percentDecreaseTextPane
-        .setText(marketInfo.getLargestPercentageDecreasesString(numberOfResults, true));
-    pointIncreaseTextPane.setText(marketInfo.getLargestPointIncreasesString(numberOfResults, true));
-    pointDecreaseTextPane.setText(marketInfo.getLargestPointDecreasesString(numberOfResults, true));
+    percentIncreasePane.addToList(marketInfo.getLargestPercentageIncreases(amountOfValues, true));
+    pointIncreasePane.addToList(marketInfo.getLargestPointIncreases(amountOfValues, true));
+    percentDecreasePane.addToList(marketInfo.getLargestPercentageDecreases(amountOfValues, true));
+    pointDecreasePane.addToList(marketInfo.getLargestPointDecreases(amountOfValues, true));
   }
 
   private void initializeVariables()
@@ -281,40 +276,29 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     calendarDaysButton = new JRadioButton("Calendar Days");
     marketDaysButton = new JRadioButton("Market Days");
 
-    daySpanSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 1000, 1));
+    daySpanSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 5000, 1));
     numberOfResultsSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 30, 1));
 
-    percentIncreaseTextPane = new JTextPane();
-    percentDecreaseTextPane = new JTextPane();
-    pointIncreaseTextPane = new JTextPane();
-    pointDecreaseTextPane = new JTextPane();
-    additionalInfoTextPane = new JTextPane();
+    percentIncreasePane = new StockListPane("Largest Percent Increase");
+    pointIncreasePane = new StockListPane("Largest Point Increase");
+    percentDecreasePane = new StockListPane("Largest Percent Decrease");
+    pointDecreasePane = new StockListPane("Largest Point Decrease");
+    additionalInfoPane = new StockListPane("Additional Information");
   }
 
   private void setAttributes()
   {
     setAttributesHelper(this.getRootPane());
-    titleLabel.setFont(new Font(FONT_NAME, FONT_STYLE, 60));
-    textField.setFont(new Font(FONT_NAME, FONT_STYLE, 30));
+    titleLabel.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 60));
+    textField.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 30));
     ((JSpinner.NumberEditor) daySpanSpinner.getEditor()).getTextField()
-        .setFont(new Font(FONT_NAME, FONT_STYLE, 20));
+        .setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20));
     ((JSpinner.NumberEditor) numberOfResultsSpinner.getEditor()).getTextField()
-        .setFont(new Font(FONT_NAME, FONT_STYLE, 20));
+        .setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20));
 
     calendarDaysButton.setSelected(true);
 
     upperPanel.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100));
-    setBorderHelper(percentIncreaseTextPane, "Largest Percent Increase");
-    setBorderHelper(percentDecreaseTextPane, "Largest Percent Decrease");
-    setBorderHelper(pointIncreaseTextPane, "Largest Point Increase");
-    setBorderHelper(pointDecreaseTextPane, "Largest Point Decrease");
-    setBorderHelper(additionalInfoTextPane, "Additional Information");
-  }
-
-  private void setBorderHelper(JComponent component, String titleName)
-  {
-    component.setBorder(BorderFactory.createTitledBorder(null, titleName, 2, 2,
-        new Font(FONT_NAME, FONT_STYLE, 20), Color.WHITE));
   }
 
   private void setAttributesHelper(Container container)
@@ -324,35 +308,27 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     {
       if (comp instanceof JPanel)
       {
-        comp.setBackground(DARK_GRAY);
+        comp.setBackground(GUIConstants.DARK_GRAY);
       }
       else if (comp instanceof JRadioButton || comp instanceof JButton
           || comp instanceof JTextField)
       {
-        comp.setBackground(LIGHT_GRAY);
+        comp.setBackground(GUIConstants.LIGHT_GRAY);
       }
       else if (comp instanceof JTextPane)
       {
         ((JTextPane) comp).setEditable(false);
-        comp.setBackground(MEDIUM_GRAY);
+        comp.setBackground(GUIConstants.MEDIUM_GRAY);
       }
       else
       {
-        comp.setBackground(MEDIUM_GRAY);
+        comp.setBackground(GUIConstants.MEDIUM_GRAY);
       }
 
-      comp.setFont(new Font(FONT_NAME, FONT_STYLE, 18));
+      comp.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 18));
       comp.setForeground(Color.WHITE);
       setAttributesHelper((Container) comp);
     }
-  }
-
-  private void scrollPaneToPanelHelper(JTextPane textPane, JPanel panel)
-  {
-    JPanel noWrapPanel = new JPanel(new BorderLayout());
-    noWrapPanel.add(textPane);
-    JScrollPane scrollPane = new JScrollPane(noWrapPanel);
-    panel.add(scrollPane);
   }
 
 }

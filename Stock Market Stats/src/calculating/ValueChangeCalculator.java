@@ -1,5 +1,6 @@
 package calculating;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,7 +29,21 @@ public class ValueChangeCalculator
    * @param timeSpan
    *          The amount of time to compare
    */
-  public static void addDateDifferentialChanges(MarketInfo marketInfo, int daySpan)
+  public static void addDateDifferentialChanges(MarketInfo marketInfo, int daySpan,
+      boolean isCalendarDays)
+  {
+    if (isCalendarDays)
+    {
+      calculateCalendarDayDifferentialValues(marketInfo, daySpan);
+    }
+    else
+    {
+      calculateMarketDayDifferentialValues(marketInfo, daySpan);
+    }
+
+  }
+
+  private static void calculateCalendarDayDifferentialValues(MarketInfo marketInfo, int daySpan)
   {
     boolean isDone = false;
     Iterator<String> it = marketInfo.getMap().keySet().iterator();
@@ -39,45 +54,26 @@ public class ValueChangeCalculator
 
       if (canFindNextDate(marketInfo, key, daySpan))
       {
-        String date1 = key;
-        String date2;
-        Double first, second;
+        Double firstValue, secondValue;
+        String firstDate, secondDate;
+        firstDate = key;
 
-        if (daySpan == 0)
+        secondDate = daySpan == 0 ? firstDate
+            : findNextAvailableDay(marketInfo, key, marketInfo.getMap(), daySpan);
+        firstValue = daySpan == 0 ? marketInfo.getMap().get(firstDate).getOpen()
+            : marketInfo.getMap().get(firstDate).getClose();
+
+        secondValue = marketInfo.getMap().get(secondDate).getClose();
+
+        Double pointChange = secondValue - firstValue;
+        datesHelper(marketInfo.getPointDifferentialMap(), pointChange, firstDate, secondDate,
+            daySpan);
+
+        if (pointChange != 0)
         {
-          date2 = date1;
-          first = marketInfo.getMap().get(date1).getOpen();
-        }
-        else
-        {
-          if (canFindNextDate(marketInfo, key, daySpan))
-            date2 = findNextAvailableDay(marketInfo, key, marketInfo.getMap(), daySpan);
-          else
-            date2 = null;
-
-          if (date2 == null)
-          {
-            System.err.print("Could not find the next date");
-            return;
-          }
-
-          first = marketInfo.getMap().get(date1).getClose();
-        }
-
-        second = marketInfo.getMap().get(date2).getClose();
-
-        Double pointChange = second - first;
-        datesHelper(marketInfo.getPointDifferentialMap(), pointChange, date1, date2, daySpan);
-
-        if (pointChange > 0)
-        {
-          Double percInc = calculateIncreasePercentage(first, second);
-          datesHelper(marketInfo.getPercentDifferentialMap(), percInc, date1, date2, daySpan);
-        }
-        else if (pointChange < 0)
-        {
-          Double percDec = -calculateDecreasePercentage(first, second);
-          datesHelper(marketInfo.getPercentDifferentialMap(), percDec, date1, date2, daySpan);
+          Double percentage = calculatePercentage(pointChange, firstValue, secondValue);
+          datesHelper(marketInfo.getPercentDifferentialMap(), percentage, firstDate, secondDate,
+              daySpan);
         }
       }
       else
@@ -85,6 +81,44 @@ public class ValueChangeCalculator
         isDone = true;
       }
     }
+  }
+
+  private static void calculateMarketDayDifferentialValues(MarketInfo marketInfo, int daySpan)
+  {
+    boolean isDone = false;
+
+    ArrayList<Pair<Double, Double>> values = new ArrayList<>(marketInfo.getMap().values());
+    ArrayList<String> keys = new ArrayList<>(marketInfo.getMap().keySet());
+
+    for (int i = 0; i < values.size() && !isDone; i++)
+    {
+      if (i + daySpan < values.size())
+      {
+        Double firstValue, secondValue;
+        String firstDate, secondDate;
+
+        firstValue = daySpan == 0 ? values.get(i).getOpen() : values.get(i).getClose();
+        secondValue = values.get(i + daySpan).getClose();
+        firstDate = keys.get(i);
+        secondDate = keys.get(i + daySpan);
+
+        Double pointChange = secondValue - firstValue;
+        datesHelper(marketInfo.getPointDifferentialMap(), pointChange, firstDate, secondDate,
+            daySpan);
+
+        if (pointChange != 0)
+        {
+          Double percentage = calculatePercentage(pointChange, firstValue, secondValue);
+          datesHelper(marketInfo.getPercentDifferentialMap(), percentage, firstDate, secondDate,
+              daySpan);
+        }
+      }
+      else
+      {
+        isDone = true;
+      }
+    }
+
   }
 
   /**
@@ -123,14 +157,20 @@ public class ValueChangeCalculator
       return findNextAvailableDay(marketInfo, retVal, valuesMap, 1);
   }
 
-  private static Double calculateIncreasePercentage(Double first, Double second)
+  private static Double calculatePercentage(Double pointChange, Double first, Double second)
   {
-    return ((second - first) / first) * 100;
-  }
+    Double retVal = null;
 
-  private static Double calculateDecreasePercentage(Double first, Double second)
-  {
-    return ((first - second) / first) * 100;
+    if (pointChange > 0)
+    {
+      retVal = ((second - first) / first) * 100;
+    }
+    else if (pointChange < 0)
+    {
+      retVal = -((first - second) / first) * 100;
+    }
+
+    return retVal;
   }
 
   /**

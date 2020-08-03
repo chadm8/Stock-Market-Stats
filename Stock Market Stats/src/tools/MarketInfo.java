@@ -53,9 +53,9 @@ public class MarketInfo
    * @param daySpan
    *          The day span
    */
-  public void calculateDateDifferentialValues(int daySpan)
+  public void calculateDateDifferentialValues(int daySpan, boolean isCalendarDays)
   {
-    ValueChangeCalculator.addDateDifferentialChanges(this, daySpan);
+    ValueChangeCalculator.addDateDifferentialChanges(this, daySpan, isCalendarDays);
     sortMap(percentDifferentialMap, sortedPercentList);
     sortMap(pointDifferentialMap, sortedPointList);
   }
