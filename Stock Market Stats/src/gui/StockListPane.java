@@ -42,8 +42,8 @@ public class StockListPane extends JPanel
     for (int i = 0; i < list.size(); i++)
     {
       Entry<String, Double> entry = list.get(i);
-
-      listModel.addElement(String.format("%s: %.2f\n", entry.getKey(), entry.getValue()));
+      String date = reformatDate(entry.getKey());
+      listModel.addElement(String.format("%s: %.2f\n", date, entry.getValue()));
     }
 
     // checks for negative value to determine color of foreground
@@ -55,6 +55,32 @@ public class StockListPane extends JPanel
     {
       valuesList.setForeground(GUIConstants.GREEN);
     }
+  }
+
+  private String reformatDate(String date)
+  {
+    String reformattedDate;
+
+    if (date.contains(" to "))
+    {
+      String[] dates = date.split(" to ");
+      String[] firstDateElements = dates[0].split("-");
+      String[] secondDateElements = dates[1].split("-");
+
+      // reformat to mm/dd/yyyy to mm/dd/yyyy
+      reformattedDate = String.format("%s/%s/%s to %s/%s/%s", firstDateElements[1],
+          firstDateElements[2], firstDateElements[0], secondDateElements[1], secondDateElements[2],
+          secondDateElements[0]);
+    }
+    else
+    {
+      String[] dateElements = date.split("-");
+      // reformat to mm/dd/yyyy
+      reformattedDate = String.format("%s/%s/%s", dateElements[1], dateElements[2],
+          dateElements[0]);
+    }
+
+    return reformattedDate;
   }
 
 }
