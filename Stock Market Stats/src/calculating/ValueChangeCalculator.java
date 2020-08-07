@@ -140,7 +140,7 @@ public class ValueChangeCalculator
 
     // date values after day span is taken into account
     int year2 = cal.get(Calendar.YEAR);
-    int month2 = cal.get(Calendar.MONTH);
+    int month2 = cal.get(Calendar.MONTH) + 1; // add one because Calendar api is zero-based
     int day2 = cal.get(Calendar.DAY_OF_MONTH);
 
     // ensures a consistent format with the spreadsheet

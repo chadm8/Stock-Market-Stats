@@ -6,7 +6,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import calculating.CalendarCalculator;
 import calculating.ValueChangeCalculator;
 import io.SpreadSheetReader;
 
@@ -44,7 +46,7 @@ public class MarketInfo
     mostRecentDate = Calendar.getInstance();
 
     reader.readRawDataAndAssignValues();
-    setMostRecentDate(getMostRecentStringDate());
+    CalendarCalculator.makeCalendarDate(getMostRecentStringDate());
   }
 
   /**
@@ -194,22 +196,6 @@ public class MarketInfo
   }
 
   /**
-   * A helper method to set the most recent Calendar date.
-   * 
-   * @param firstDate
-   *          The most recent date in String form
-   */
-  private void setMostRecentDate(String firstDate)
-  {
-    String[] values = firstDate.split("-");
-    int year = Integer.parseInt(values[0]);
-    int month = Integer.parseInt(values[1]);
-    int day = Integer.parseInt(values[2]);
-
-    mostRecentDate.set(year, month, day);
-  }
-
-  /**
    * Sorts a given HashMap into an ArrayList of entries.
    * 
    * @param differentialMap
@@ -234,16 +220,32 @@ public class MarketInfo
    * @return A String of the largest increases
    */
   private ArrayList<Map.Entry<String, Double>> getLargestIncreasesHelper(int amountOfValues,
-      ArrayList<Map.Entry<String, Double>> list, boolean allowDayOverlaps)
+      ArrayList<Map.Entry<String, Double>> list, boolean canOverlapDates)
   {
     ArrayList<Map.Entry<String, Double>> tmp = new ArrayList<Map.Entry<String, Double>>();
     int lastIndex = list.size() - 1;
     int amOfVals = amountOfValues;
 
-    for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
+    if (!canOverlapDates)
     {
-      tmp.add(list.get(i));
-      amOfVals--;
+      for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
+      {
+        boolean overlapped = CalendarCalculator.datesOverlapInList(tmp, list.get(i).getKey());
+
+        if (!overlapped)
+        {
+          tmp.add(list.get(i));
+          amOfVals--;
+        }
+      }
+    }
+    else
+    {
+      for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
+      {
+        tmp.add(list.get(i));
+        amOfVals--;
+      }
     }
 
     return tmp;
@@ -259,15 +261,31 @@ public class MarketInfo
    * @return A String of the largest decreases
    */
   private ArrayList<Map.Entry<String, Double>> getLargestDecreasesHelper(int amountOfValues,
-      ArrayList<Map.Entry<String, Double>> list, boolean allowDayOverlaps)
+      ArrayList<Map.Entry<String, Double>> list, boolean canOverlapDates)
   {
     ArrayList<Map.Entry<String, Double>> tmp = new ArrayList<Map.Entry<String, Double>>();
     int amOfVals = amountOfValues;
 
-    for (int i = 0; i < list.size() && amOfVals != 0; i++)
+    if (!canOverlapDates)
     {
-      tmp.add(list.get(i));
-      amOfVals--;
+      for (int i = 0; i < list.size() && amOfVals != 0; i++)
+      {
+        boolean overlapped = CalendarCalculator.datesOverlapInList(tmp, list.get(i).getKey());
+
+        if (!overlapped)
+        {
+          tmp.add(list.get(i));
+          amOfVals--;
+        }
+      }
+    }
+    else
+    {
+      for (int i = 0; i < list.size() && amOfVals != 0; i++)
+      {
+        tmp.add(list.get(i));
+        amOfVals--;
+      }
     }
 
     return tmp;
@@ -277,7 +295,7 @@ public class MarketInfo
   {
     Iterator<Map.Entry<String, Double>> it = list.iterator();
     String retVal = "";
-    //int counter = 1;
+    // int counter = 1;
 
     while (it.hasNext())
     {
@@ -285,10 +303,10 @@ public class MarketInfo
       String key = entry.getKey();
       Double val = entry.getValue();
 
-      //retVal += String.format("%d.  %s: %.2f\n", counter, key, val);
+      // retVal += String.format("%d. %s: %.2f\n", counter, key, val);
       retVal += String.format("%s: %.2f\n", key, val);
 
-      //counter++;
+      // counter++;
     }
 
     return retVal;

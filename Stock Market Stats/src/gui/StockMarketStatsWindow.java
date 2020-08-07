@@ -69,6 +69,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
   private JRadioButton calendarDaysButton;
   private JRadioButton marketDaysButton;
+  private JRadioButton duplicateDatesButton;
 
   private JSpinner daySpanSpinner;
   private JSpinner numberOfResultsSpinner;
@@ -213,7 +214,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     lowerCentralPanel.add(new JLabel("Day Span:", SwingConstants.RIGHT));
     lowerCentralPanel.add(daySpanSpinner);
     lowerCentralPanel.add(new JLabel());
-    lowerCentralPanel.add(new JLabel());
+    lowerCentralPanel.add(duplicateDatesButton);
 
     lowerCentralPanel.add(new JLabel());
     lowerCentralPanel.add(new JLabel());
@@ -249,14 +250,20 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
     int daySpan = (int) daySpanSpinner.getValue();
     int amountOfValues = (int) numberOfResultsSpinner.getValue();
+    boolean isCalendarDays = calendarDaysButton.isSelected();
+    boolean isOverlappingDates = duplicateDatesButton.isSelected();
     MarketInfo marketInfo = new MarketInfo(textField.getText());
 
-    marketInfo.calculateDateDifferentialValues(daySpan, calendarDaysButton.isSelected());
+    marketInfo.calculateDateDifferentialValues(daySpan, isCalendarDays);
 
-    percentIncreasePane.addToList(marketInfo.getLargestPercentageIncreases(amountOfValues, true));
-    pointIncreasePane.addToList(marketInfo.getLargestPointIncreases(amountOfValues, true));
-    percentDecreasePane.addToList(marketInfo.getLargestPercentageDecreases(amountOfValues, true));
-    pointDecreasePane.addToList(marketInfo.getLargestPointDecreases(amountOfValues, true));
+    percentIncreasePane
+        .addToList(marketInfo.getLargestPercentageIncreases(amountOfValues, isOverlappingDates));
+    pointIncreasePane
+        .addToList(marketInfo.getLargestPointIncreases(amountOfValues, isOverlappingDates));
+    percentDecreasePane
+        .addToList(marketInfo.getLargestPercentageDecreases(amountOfValues, isOverlappingDates));
+    pointDecreasePane
+        .addToList(marketInfo.getLargestPointDecreases(amountOfValues, isOverlappingDates));
   }
 
   private void initializeVariables()
@@ -275,6 +282,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     clearButton = new JButton("Clear");
     calendarDaysButton = new JRadioButton("Calendar Days");
     marketDaysButton = new JRadioButton("Market Days");
+    duplicateDatesButton = new JRadioButton("Overlap Dates");
 
     daySpanSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 5000, 1));
     numberOfResultsSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 30, 1));
@@ -290,6 +298,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   {
     setAttributesHelper(this.getRootPane());
     titleLabel.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 60));
+    textField.setHorizontalAlignment(JTextField.CENTER);
     textField.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 30));
     ((JSpinner.NumberEditor) daySpanSpinner.getEditor()).getTextField()
         .setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20));
