@@ -8,10 +8,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import tools.GUIConstants;
 
@@ -29,8 +31,16 @@ public class StockListPane extends JPanel
     valuesList = new JList<>(listModel);
     this.titleName = titleName;
 
+    DefaultListCellRenderer renderer = (DefaultListCellRenderer) valuesList.getCellRenderer();
+    renderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+    valuesList.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+    valuesList.setBackground(GUIConstants.DIM_GRAY);
+    valuesList.setFixedCellHeight(30);
+
     this.setLayout(new BorderLayout());
-    this.setBorder(BorderFactory.createTitledBorder(null, titleName, 2, 2,
+    this.setBorder(BorderFactory.createTitledBorder(
+        BorderFactory.createLineBorder(GUIConstants.DARK_GRAY), titleName, 2, 2,
         new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20), Color.WHITE));
     this.add(new JScrollPane(valuesList));
   }
@@ -55,6 +65,11 @@ public class StockListPane extends JPanel
     {
       valuesList.setForeground(GUIConstants.GREEN);
     }
+  }
+  
+  public void clearList()
+  {
+    listModel.clear();
   }
 
   private String reformatDate(String date)

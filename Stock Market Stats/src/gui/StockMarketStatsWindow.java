@@ -5,7 +5,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
@@ -19,14 +18,11 @@ import java.net.URL;
 import javax.swing.AbstractButton;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -66,10 +62,11 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   private JPanel upperCentralPanel;
   private JPanel lowerCentralPanel;
   private JPanel timeSpanPanel;
+  private JPanel overlapDatesPanel;
 
   private JRadioButton calendarDaysButton;
   private JRadioButton marketDaysButton;
-  private JRadioButton duplicateDatesButton;
+  private JRadioButton overlapDatesButton;
 
   private JSpinner daySpanSpinner;
   private JSpinner numberOfResultsSpinner;
@@ -138,6 +135,9 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     else if (command.equals("Clear"))
     {
       textField.setText("Enter the Yahoo Finance historical data link address here");
+      daySpanSpinner.setValue(1);
+      numberOfResultsSpinner.setValue(5);
+      clearLists();
     }
     else if (command.equals("Calendar Days"))
     {
@@ -206,7 +206,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     upperCentralPanel.add(calculateButton);
     upperCentralPanel.add(clearButton);
     upperCentralPanel.add(new JLabel());
-    upperCentralPanel.add(timeSpanPanel);
+    upperCentralPanel.add(new JLabel());
     upperCentralPanel.add(new JLabel());
 
     lowerCentralPanel.add(new JLabel());
@@ -214,16 +214,19 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     lowerCentralPanel.add(new JLabel("Day Span:", SwingConstants.RIGHT));
     lowerCentralPanel.add(daySpanSpinner);
     lowerCentralPanel.add(new JLabel());
-    lowerCentralPanel.add(duplicateDatesButton);
+    lowerCentralPanel.add(timeSpanPanel);
 
     lowerCentralPanel.add(new JLabel());
     lowerCentralPanel.add(new JLabel());
     lowerCentralPanel.add(new JLabel("Number Of Results:", SwingConstants.RIGHT));
     lowerCentralPanel.add(numberOfResultsSpinner);
     lowerCentralPanel.add(new JLabel());
+    lowerCentralPanel.add(overlapDatesPanel);
 
     timeSpanPanel.add(calendarDaysButton);
     timeSpanPanel.add(marketDaysButton);
+    
+    overlapDatesPanel.add(overlapDatesButton);
 
     lowerPanel.add(percentIncreasePane);
     lowerPanel.add(pointIncreasePane);
@@ -251,7 +254,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     int daySpan = (int) daySpanSpinner.getValue();
     int amountOfValues = (int) numberOfResultsSpinner.getValue();
     boolean isCalendarDays = calendarDaysButton.isSelected();
-    boolean isOverlappingDates = duplicateDatesButton.isSelected();
+    boolean isOverlappingDates = overlapDatesButton.isSelected();
     MarketInfo marketInfo = new MarketInfo(textField.getText());
 
     marketInfo.calculateDateDifferentialValues(daySpan, isCalendarDays);
@@ -265,6 +268,15 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     pointDecreasePane
         .addToList(marketInfo.getLargestPointDecreases(amountOfValues, isOverlappingDates));
   }
+  
+  private void clearLists()
+  {
+    percentIncreasePane.clearList();
+    pointIncreasePane.clearList();
+    percentDecreasePane.clearList();
+    pointDecreasePane.clearList();
+    additionalInfoPane.clearList();
+  }
 
   private void initializeVariables()
   {
@@ -277,12 +289,13 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     upperCentralPanel = new JPanel(new GridLayout(0, 6, 40, 0));
     lowerCentralPanel = new JPanel(new GridLayout(2, 6, 40, 3));
     timeSpanPanel = new JPanel(new GridLayout(2, 0));
+    overlapDatesPanel = new JPanel(new GridLayout(1, 0));
 
     calculateButton = new JButton("Calculate");
     clearButton = new JButton("Clear");
     calendarDaysButton = new JRadioButton("Calendar Days");
     marketDaysButton = new JRadioButton("Market Days");
-    duplicateDatesButton = new JRadioButton("Overlap Dates");
+    overlapDatesButton = new JRadioButton("Overlap Dates");
 
     daySpanSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 5000, 1));
     numberOfResultsSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 30, 1));
@@ -297,17 +310,27 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   private void setAttributes()
   {
     setAttributesHelper(this.getRootPane());
-    titleLabel.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 60));
     textField.setHorizontalAlignment(JTextField.CENTER);
+
+    titleLabel.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 60));
     textField.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 30));
     ((JSpinner.NumberEditor) daySpanSpinner.getEditor()).getTextField()
         .setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20));
     ((JSpinner.NumberEditor) numberOfResultsSpinner.getEditor()).getTextField()
         .setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20));
 
+    setJSpinnerButtonColors(daySpanSpinner);
+    setJSpinnerButtonColors(numberOfResultsSpinner);
+
+    daySpanSpinner.getComponent(0).setBackground(Color.WHITE);
+
     calendarDaysButton.setSelected(true);
 
     upperPanel.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100));
+    overlapDatesPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+    timeSpanPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+    calculateButton.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+    clearButton.setBorder(BorderFactory.createLineBorder(Color.WHITE));
   }
 
   private void setAttributesHelper(Container container)
@@ -331,12 +354,20 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
       }
       else
       {
-        comp.setBackground(GUIConstants.MEDIUM_GRAY);
+        //comp.setBackground(GUIConstants.MEDIUM_GRAY);
       }
 
       comp.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 18));
       comp.setForeground(Color.WHITE);
       setAttributesHelper((Container) comp);
+    }
+  }
+
+  private void setJSpinnerButtonColors(JSpinner spinner)
+  {
+    for (int i = 0; i < 2; i++)
+    {
+      spinner.getComponent(i).setBackground(Color.WHITE);
     }
   }
 
