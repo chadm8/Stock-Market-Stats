@@ -63,19 +63,22 @@ public class SpreadSheetReader
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream)))
     {
       reader.readLine(); // gets rid of the spreadsheet header
-      line = reader.readLine();
 
       while ((line = reader.readLine()) != null)
       {
         String[] lineData = line.split(",");
         date = lineData[0];
 
-        openVal = Double.parseDouble(lineData[1]);
-        closeVal = Double.parseDouble(lineData[4]);
+        if (!lineData[1].equals("null") && !lineData[4].equals("null"))
+        {
+          System.out.println(lineData[1]);
+          openVal = Double.parseDouble(lineData[1]);
+          closeVal = Double.parseDouble(lineData[4]);
 
-        Pair<Double, Double> values = new Pair<>(openVal, closeVal);
+          Pair<Double, Double> values = new Pair<>(openVal, closeVal);
 
-        map.put(date, values);
+          map.put(date, values);
+        }
       }
 
       mostRecentDate = date;

@@ -1,6 +1,5 @@
 package gui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -50,12 +49,6 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
   private JLabel titleLabel;
 
-  private StockListPane percentIncreasePane;
-  private StockListPane pointIncreasePane;
-  private StockListPane percentDecreasePane;
-  private StockListPane pointDecreasePane;
-  private StockListPane additionalInfoPane;
-
   private JPanel upperPanel;
   private JPanel lowerPanel;
 
@@ -72,6 +65,14 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   private JSpinner numberOfResultsSpinner;
 
   private JTextField textField;
+  
+  private StockListPane percentIncreasePane;
+  private StockListPane pointIncreasePane;
+  private StockListPane percentDecreasePane;
+  private StockListPane pointDecreasePane;
+  private StockListPane additionalInfoPane;
+  
+  private UtilityBar utilityBar;
 
   /**
    * The constructor.
@@ -84,11 +85,12 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     this.setSize(screenSize.width / 2, screenSize.height / 2);
     this.setExtendedState(JFrame.MAXIMIZED_BOTH);
     this.setBackground(GUIConstants.DARK_GRAY);
-    this.getRootPane().setBorder(BorderFactory.createEmptyBorder(100, 30, 30, 30));
+    this.getRootPane().setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
     addToPanels();
     setAttributes();
     addListeners(this.getRootPane());
+    this.setJMenuBar(utilityBar);
 
     this.setDefaultCloseOperation(EXIT_ON_CLOSE);
     this.setLocationRelativeTo(null);
@@ -102,7 +104,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   {
     if (e.getComponent().equals(textField))
     {
-      if (textField.getText().equals("Enter the Yahoo Finance historical data link address here"))
+      if (textField.getText().equals("Enter the Yahoo Finance historical data link address of a ticker here"))
       {
         textField.setText("");
         textField.setForeground(Color.WHITE);
@@ -118,7 +120,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
       if (textField.getText().isEmpty())
       {
         textField.setForeground(Color.WHITE);
-        textField.setText("Enter the Yahoo Finance historical data link address here");
+        textField.setText("Enter the Yahoo Finance historical data link address of a ticker here");
       }
     }
   }
@@ -134,7 +136,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     }
     else if (command.equals("Clear"))
     {
-      textField.setText("Enter the Yahoo Finance historical data link address here");
+      textField.setText("Enter the Yahoo Finance historical data link address of a ticker here");
       daySpanSpinner.setValue(1);
       numberOfResultsSpinner.setValue(5);
       clearLists();
@@ -280,10 +282,10 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
   private void initializeVariables()
   {
-    titleLabel = new JLabel("Stock Market Stats", SwingConstants.CENTER);
-    textField = new JTextField("Enter the Yahoo Finance historical data link address here");
+    titleLabel = new JLabel("Stock Market Volatility", SwingConstants.CENTER);
+    textField = new JTextField("Enter the Yahoo Finance historical data link address of a ticker here");
 
-    upperPanel = new JPanel(new GridLayout(4, 0, 10, 15));
+    upperPanel = new JPanel(new GridLayout(4, 0, 10, 25));
     lowerPanel = new JPanel(new GridLayout(0, 5, 10, 0));
 
     upperCentralPanel = new JPanel(new GridLayout(0, 6, 40, 0));
@@ -305,6 +307,8 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     percentDecreasePane = new StockListPane("Largest Percent Decrease");
     pointDecreasePane = new StockListPane("Largest Point Decrease");
     additionalInfoPane = new StockListPane("Additional Information");
+    
+    utilityBar = new UtilityBar();
   }
 
   private void setAttributes()
@@ -326,6 +330,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
     calendarDaysButton.setSelected(true);
 
+    lowerPanel.setBorder(BorderFactory.createEmptyBorder(0, 30, 30, 30));
     upperPanel.setBorder(BorderFactory.createEmptyBorder(30, 100, 30, 100));
     overlapDatesPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
     timeSpanPanel.setBorder(BorderFactory.createLineBorder(Color.WHITE));
@@ -357,8 +362,8 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
         //comp.setBackground(GUIConstants.MEDIUM_GRAY);
       }
 
-      comp.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 18));
       comp.setForeground(Color.WHITE);
+      comp.setFont(new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 18));
       setAttributesHelper((Container) comp);
     }
   }
