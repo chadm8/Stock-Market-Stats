@@ -16,42 +16,43 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 
 import tools.GUIConstants;
+import tools.MarketInfo;
 
 public class StockListPane extends JPanel
 {
   private static final long serialVersionUID = 1L;
 
   private DefaultListModel<String> listModel;
-  private JList<String> valuesList;
+  private JList<String> list;
   private String titleName;
 
   public StockListPane(String titleName)
   {
     listModel = new DefaultListModel<>();
-    valuesList = new JList<>(listModel);
+    list = new JList<>(listModel);
     this.titleName = titleName;
 
-    DefaultListCellRenderer renderer = (DefaultListCellRenderer) valuesList.getCellRenderer();
+    DefaultListCellRenderer renderer = (DefaultListCellRenderer) list.getCellRenderer();
     renderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-    valuesList.setBorder(BorderFactory.createLineBorder(Color.WHITE));
-    valuesList.setBackground(GUIConstants.DIM_GRAY);
-    valuesList.setFixedCellHeight(30);
+    list.setBorder(BorderFactory.createLineBorder(Color.WHITE));
+    list.setBackground(GUIConstants.DIM_GRAY);
+    list.setFixedCellHeight(30);
 
     this.setLayout(new BorderLayout());
     this.setBorder(BorderFactory.createTitledBorder(
         BorderFactory.createLineBorder(GUIConstants.DARK_GRAY), titleName, 2, 2,
         new Font(GUIConstants.FONT_NAME, GUIConstants.FONT_STYLE, 20), Color.WHITE));
-    this.add(new JScrollPane(valuesList));
+    this.add(new JScrollPane(list));
   }
 
-  public void addToList(ArrayList<Map.Entry<String, Double>> list)
+  public void addToVolitilityList(ArrayList<Map.Entry<String, Double>> valuesList)
   {
     listModel.clear();
 
-    for (int i = 0; i < list.size(); i++)
+    for (int i = 0; i < valuesList.size(); i++)
     {
-      Entry<String, Double> entry = list.get(i);
+      Entry<String, Double> entry = valuesList.get(i);
       String date = reformatDate(entry.getKey());
       listModel.addElement(String.format("%s: %.2f\n", date, entry.getValue()));
     }
@@ -59,14 +60,30 @@ public class StockListPane extends JPanel
     // checks for negative value to determine color of foreground
     if (titleName.contains("Decrease"))
     {
-      valuesList.setForeground(GUIConstants.RED);
+      list.setForeground(GUIConstants.RED);
     }
     else if (titleName.contains("Increase"))
     {
-      valuesList.setForeground(GUIConstants.GREEN);
+      list.setForeground(GUIConstants.GREEN);
     }
   }
-  
+
+  public void addToAdditionalInfoList(MarketInfo marketInfo)
+  {
+    listModel.clear();
+    list.setForeground(Color.WHITE);
+
+    listModel.addElement(String.format("Date Start/End: %s | %s",
+        reformatDate(marketInfo.getStartDate()), reformatDate(marketInfo.getEndDate())));
+    if (marketInfo.getStartPrice() != null && marketInfo.getEndPrice() != null)
+      listModel.addElement(String.format("Price Start/End: %.2f | %.2f", marketInfo.getStartPrice(),
+          marketInfo.getEndPrice()));
+    if (marketInfo.getStartVolume() != null && marketInfo.getEndVolume() != null)
+      listModel.addElement(String.format("Volume Start/End: %.0f | %.0f", marketInfo.getStartVolume(),
+          marketInfo.getEndVolume()));
+
+  }
+
   public void clearList()
   {
     listModel.clear();
@@ -82,7 +99,7 @@ public class StockListPane extends JPanel
       String[] firstDateElements = dates[0].split("-");
       String[] secondDateElements = dates[1].split("-");
 
-      // reformat to mm/dd/yyyy to mm/dd/yyyy
+      // reformat from yyyy-mm-dd to mm/dd/yyyy
       reformattedDate = String.format("%s/%s/%s to %s/%s/%s", firstDateElements[1],
           firstDateElements[2], firstDateElements[0], secondDateElements[1], secondDateElements[2],
           secondDateElements[0]);
@@ -90,7 +107,7 @@ public class StockListPane extends JPanel
     else
     {
       String[] dateElements = date.split("-");
-      // reformat to mm/dd/yyyy
+      // reformat from yyyy-mm-dd to mm/dd/yyyy
       reformattedDate = String.format("%s/%s/%s", dateElements[1], dateElements[2],
           dateElements[0]);
     }

@@ -47,7 +47,7 @@ public class UtilityBar extends JMenuBar
 
   private void helpButtonHelper()
   {
-    String message = "<html> Step 1: Search and go to Yahoo Finance <br/>"
+    String message = "<html> Step 1: Search and go to Yahoo Finance on the Internet <br/>"
         + "Step 2: Enter any ticker in the Yahoo Finance search bar (Examples: \"TSLA\", \"AMZN\", \"AAPL\") <br/>"
         + "Step 3: Click on the \"Historical Data\" button located near the center of the screen <br/>"
         + "Step 4: Click the \"Time Period\" drop down button and select any date (Preferably \"Max\") <br/>"

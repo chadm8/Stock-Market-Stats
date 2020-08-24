@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import calculating.CalendarCalculator;
 import calculating.ValueChangeCalculator;
@@ -26,7 +25,7 @@ public class MarketInfo
   private HashMap<String, Double> pointDifferentialMap;
   private ArrayList<Map.Entry<String, Double>> sortedPercentList;
   private ArrayList<Map.Entry<String, Double>> sortedPointList;
-  private Calendar mostRecentDate;
+  private Calendar endDate;
 
   /**
    * The constructor.
@@ -43,10 +42,9 @@ public class MarketInfo
     sortedPercentList = new ArrayList<>();
     sortedPointList = new ArrayList<>();
     reader = new SpreadSheetReader(fileInputPath);
-    mostRecentDate = Calendar.getInstance();
 
     reader.readRawDataAndAssignValues();
-    CalendarCalculator.makeCalendarDate(getMostRecentStringDate());
+    endDate = CalendarCalculator.makeCalendarDate(getEndDate());
   }
 
   /**
@@ -174,25 +172,50 @@ public class MarketInfo
   {
     return reader.getMap();
   }
+  
+  /**
+   * Gets the most recent Calendar date.
+   * 
+   * @return The most recent Calendar date
+   */
+  public Calendar getEndCalendarDate()
+  {
+    return endDate;
+  }
 
   /**
    * Gets the most recent date.
    * 
    * @return The most recent date
    */
-  public String getMostRecentStringDate()
+  public String getEndDate()
   {
-    return reader.getMostRecentDate();
+    return reader.getEndDateInSheet();
   }
-
-  /**
-   * Gets the most recent Calendar date.
-   * 
-   * @return The most recent Calendar date
-   */
-  public Calendar getMostRecentCalendarDate()
+  
+  public Double getEndPrice()
   {
-    return mostRecentDate;
+    return reader.getEndPriceInSheet();
+  }
+  
+  public Double getEndVolume()
+  {
+    return reader.getEndVolumeInSheet();
+  }
+  
+  public String getStartDate()
+  {
+    return reader.getStartDateInSheet();
+  }
+  
+  public Double getStartPrice()
+  {
+    return reader.getStartPriceInSheet();
+  }
+  
+  public Double getStartVolume()
+  {
+    return reader.getStartVolumeInSheet();
   }
 
   /**
@@ -228,23 +251,26 @@ public class MarketInfo
 
     if (!canOverlapDates)
     {
-      for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
+      for (int i = lastIndex; i > -1 && amOfVals != 0 && list.get(i).getValue() > 0; i--)
       {
         boolean overlapped = CalendarCalculator.datesOverlapInList(tmp, list.get(i).getKey());
 
         if (!overlapped)
         {
-          tmp.add(list.get(i));
-          amOfVals--;
+            tmp.add(list.get(i));
+            amOfVals--;
         }
       }
     }
     else
     {
-      for (int i = lastIndex; i > -1 && amOfVals != 0; i--)
+      for (int i = lastIndex; i > -1 && amOfVals != 0 && list.get(i).getValue() > 0; i--)
       {
-        tmp.add(list.get(i));
-        amOfVals--;
+        if (list.get(i).getValue() > 0)
+        {
+          tmp.add(list.get(i));
+          amOfVals--;
+        }
       }
     }
 
@@ -268,7 +294,7 @@ public class MarketInfo
 
     if (!canOverlapDates)
     {
-      for (int i = 0; i < list.size() && amOfVals != 0; i++)
+      for (int i = 0; i < list.size() && amOfVals != 0 && list.get(i).getValue() < 0; i++)
       {
         boolean overlapped = CalendarCalculator.datesOverlapInList(tmp, list.get(i).getKey());
 
@@ -281,7 +307,7 @@ public class MarketInfo
     }
     else
     {
-      for (int i = 0; i < list.size() && amOfVals != 0; i++)
+      for (int i = 0; i < list.size() && amOfVals != 0 && list.get(i).getValue() < 0; i++)
       {
         tmp.add(list.get(i));
         amOfVals--;

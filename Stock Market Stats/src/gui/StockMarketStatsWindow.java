@@ -65,13 +65,13 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   private JSpinner numberOfResultsSpinner;
 
   private JTextField textField;
-  
+
   private StockListPane percentIncreasePane;
   private StockListPane pointIncreasePane;
   private StockListPane percentDecreasePane;
   private StockListPane pointDecreasePane;
   private StockListPane additionalInfoPane;
-  
+
   private UtilityBar utilityBar;
 
   /**
@@ -104,7 +104,8 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   {
     if (e.getComponent().equals(textField))
     {
-      if (textField.getText().equals("Enter the Yahoo Finance historical data link address of a ticker here"))
+      if (textField.getText()
+          .equals("Enter the Yahoo Finance historical data link address of a ticker here"))
       {
         textField.setText("");
         textField.setForeground(Color.WHITE);
@@ -227,7 +228,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
     timeSpanPanel.add(calendarDaysButton);
     timeSpanPanel.add(marketDaysButton);
-    
+
     overlapDatesPanel.add(overlapDatesButton);
 
     lowerPanel.add(percentIncreasePane);
@@ -262,15 +263,16 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     marketInfo.calculateDateDifferentialValues(daySpan, isCalendarDays);
 
     percentIncreasePane
-        .addToList(marketInfo.getLargestPercentageIncreases(amountOfValues, isOverlappingDates));
+        .addToVolitilityList(marketInfo.getLargestPercentageIncreases(amountOfValues, isOverlappingDates));
     pointIncreasePane
-        .addToList(marketInfo.getLargestPointIncreases(amountOfValues, isOverlappingDates));
+        .addToVolitilityList(marketInfo.getLargestPointIncreases(amountOfValues, isOverlappingDates));
     percentDecreasePane
-        .addToList(marketInfo.getLargestPercentageDecreases(amountOfValues, isOverlappingDates));
+        .addToVolitilityList(marketInfo.getLargestPercentageDecreases(amountOfValues, isOverlappingDates));
     pointDecreasePane
-        .addToList(marketInfo.getLargestPointDecreases(amountOfValues, isOverlappingDates));
+        .addToVolitilityList(marketInfo.getLargestPointDecreases(amountOfValues, isOverlappingDates));
+    additionalInfoPane.addToAdditionalInfoList(marketInfo);
   }
-  
+
   private void clearLists()
   {
     percentIncreasePane.clearList();
@@ -283,7 +285,8 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
   private void initializeVariables()
   {
     titleLabel = new JLabel("Stock Market Volatility", SwingConstants.CENTER);
-    textField = new JTextField("Enter the Yahoo Finance historical data link address of a ticker here");
+    textField = new JTextField(
+        "Enter the Yahoo Finance historical data link address of a ticker here");
 
     upperPanel = new JPanel(new GridLayout(4, 0, 10, 25));
     lowerPanel = new JPanel(new GridLayout(0, 5, 10, 0));
@@ -307,7 +310,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     percentDecreasePane = new StockListPane("Largest Percent Decrease");
     pointDecreasePane = new StockListPane("Largest Point Decrease");
     additionalInfoPane = new StockListPane("Additional Information");
-    
+
     utilityBar = new UtilityBar();
   }
 
@@ -359,7 +362,7 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
       }
       else
       {
-        //comp.setBackground(GUIConstants.MEDIUM_GRAY);
+        // comp.setBackground(GUIConstants.MEDIUM_GRAY);
       }
 
       comp.setForeground(Color.WHITE);

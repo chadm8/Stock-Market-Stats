@@ -189,7 +189,7 @@ public class ValueChangeCalculator
     Calendar cal = CalendarCalculator.makeCalendarDate(date);
     cal.add(Calendar.DAY_OF_MONTH, daySpan);
 
-    return cal.before(marketInfo.getMostRecentCalendarDate());
+    return cal.before(marketInfo.getEndCalendarDate());
   }
 
   private static void datesHelper(HashMap<String, Double> map, Double value, String date1,
