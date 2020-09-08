@@ -18,7 +18,14 @@ import javax.swing.SwingConstants;
 import tools.GUIConstants;
 import tools.MarketInfo;
 
-public class StockListPane extends JPanel
+/**
+ * A class for aiding the setup of the lists for the differential values and additional information.
+ * 
+ * @author Chad Martin
+ * @version 8/14/2020
+ *
+ */
+public class StockList extends JPanel
 {
   private static final long serialVersionUID = 1L;
 
@@ -26,7 +33,13 @@ public class StockListPane extends JPanel
   private JList<String> list;
   private String titleName;
 
-  public StockListPane(String titleName)
+  /**
+   * Creates a list for the name of the title.
+   * 
+   * @param titleName
+   *          The name of the title
+   */
+  public StockList(String titleName)
   {
     listModel = new DefaultListModel<>();
     list = new JList<>(listModel);
@@ -46,6 +59,12 @@ public class StockListPane extends JPanel
     this.add(new JScrollPane(list));
   }
 
+  /**
+   * Clears the list then adds the values from the ArrayList to the list.
+   * 
+   * @param valuesList
+   *          The ArrayList of values
+   */
   public void addToVolitilityList(ArrayList<Map.Entry<String, Double>> valuesList)
   {
     listModel.clear();
@@ -68,6 +87,12 @@ public class StockListPane extends JPanel
     }
   }
 
+  /**
+   * Adds information from MarketInfo to the list.
+   * 
+   * @param marketInfo
+   *          The MarketInfo
+   */
   public void addToAdditionalInfoList(MarketInfo marketInfo)
   {
     listModel.clear();
@@ -79,16 +104,25 @@ public class StockListPane extends JPanel
       listModel.addElement(String.format("Price Start/End: %.2f | %.2f", marketInfo.getStartPrice(),
           marketInfo.getEndPrice()));
     if (marketInfo.getStartVolume() != null && marketInfo.getEndVolume() != null)
-      listModel.addElement(String.format("Volume Start/End: %.0f | %.0f", marketInfo.getStartVolume(),
-          marketInfo.getEndVolume()));
+      listModel.addElement(String.format("Volume Start/End: %.0f | %.0f",
+          marketInfo.getStartVolume(), marketInfo.getEndVolume()));
 
   }
 
+  /**
+   * Clears the list model.
+   */
   public void clearList()
   {
     listModel.clear();
   }
 
+  /**
+   * Reformats a date(s) from yyyy-mm-dd to mm/dd/yyyy format.
+   * 
+   * @param date The date(s)
+   * @return The reformatted date(s)
+   */
   private String reformatDate(String date)
   {
     String reformattedDate;

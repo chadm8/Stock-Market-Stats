@@ -7,6 +7,13 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 
+/**
+ * A class for setting up the utility bar at the top of the program.
+ * 
+ * @author Chad Martin
+ * @version 8/18/2020
+ *
+ */
 public class UtilityBar extends JMenuBar
 {
   private static final long serialVersionUID = 1L;
@@ -14,6 +21,9 @@ public class UtilityBar extends JMenuBar
   private JMenu helpMenu;
   private JMenuItem helpMenuItem, aboutMenuItem;
 
+  /**
+   * The default constructor.
+   */
   public UtilityBar()
   {
     helpMenu = new JMenu("Help");
@@ -27,6 +37,9 @@ public class UtilityBar extends JMenuBar
     addListeners();
   }
 
+  /**
+   * The about button helper for the message and dialog.
+   */
   private void aboutButtonHelper()
   {
     String message = "<html> Currently under work! </html>";
@@ -34,6 +47,9 @@ public class UtilityBar extends JMenuBar
         JOptionPane.PLAIN_MESSAGE);
   }
 
+  /**
+   * Adds listeners to the help menu and the about menu.
+   */
   private void addListeners()
   {
     helpMenuItem.addActionListener(e -> {
@@ -45,6 +61,9 @@ public class UtilityBar extends JMenuBar
     });
   }
 
+  /**
+   * The help button helper for the message and dialog.
+   */
   private void helpButtonHelper()
   {
     String message = "<html> Step 1: Search and go to Yahoo Finance on the Internet <br/>"

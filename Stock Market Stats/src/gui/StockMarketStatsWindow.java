@@ -66,11 +66,11 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
 
   private JTextField textField;
 
-  private StockListPane percentIncreasePane;
-  private StockListPane pointIncreasePane;
-  private StockListPane percentDecreasePane;
-  private StockListPane pointDecreasePane;
-  private StockListPane additionalInfoPane;
+  private StockList percentIncreasePane;
+  private StockList pointIncreasePane;
+  private StockList percentDecreasePane;
+  private StockList pointDecreasePane;
+  private StockList additionalInfoPane;
 
   private UtilityBar utilityBar;
 
@@ -305,11 +305,11 @@ public class StockMarketStatsWindow extends JFrame implements ActionListener, Fo
     daySpanSpinner = new JSpinner(new SpinnerNumberModel(1, 0, 5000, 1));
     numberOfResultsSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 30, 1));
 
-    percentIncreasePane = new StockListPane("Largest Percent Increase");
-    pointIncreasePane = new StockListPane("Largest Point Increase");
-    percentDecreasePane = new StockListPane("Largest Percent Decrease");
-    pointDecreasePane = new StockListPane("Largest Point Decrease");
-    additionalInfoPane = new StockListPane("Additional Information");
+    percentIncreasePane = new StockList("Largest Percent Increase");
+    pointIncreasePane = new StockList("Largest Point Increase");
+    percentDecreasePane = new StockList("Largest Percent Decrease");
+    pointDecreasePane = new StockList("Largest Point Decrease");
+    additionalInfoPane = new StockList("Additional Information");
 
     utilityBar = new UtilityBar();
   }

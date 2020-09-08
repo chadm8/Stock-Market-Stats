@@ -34,6 +34,16 @@ public class CalendarCalculator
     return cal;
   }
 
+  /**
+   * Checks to see if the dates given overlap each other. For example, 2016-12-24 to 2016-12-28
+   * overlaps 2016-12-23 to 2016-12-27.
+   * 
+   * @param firstDateSetString
+   *          The first set of dates
+   * @param secondDateSetString
+   *          The second set of dates
+   * @return True if the dates overlap
+   */
   public static boolean datesOverlap(String firstDateSetString, String secondDateSetString)
   {
 
@@ -64,14 +74,22 @@ public class CalendarCalculator
     return isOverlapped;
   }
 
+  /**
+   * Checks the entire list of dates, and compares each one to the dateSet to see if it overlaps
+   * with anything.
+   * 
+   * @param list The list of dates
+   * @param date The date
+   * @return
+   */
   public static boolean datesOverlapInList(ArrayList<Map.Entry<String, Double>> list,
-      String dateSet)
+      String date)
   {
     boolean isOverlapped = false;
 
     for (Entry<String, Double> current : list)
     {
-      if (CalendarCalculator.datesOverlap(current.getKey(), dateSet))
+      if (CalendarCalculator.datesOverlap(current.getKey(), date))
       {
         isOverlapped = true;
       }

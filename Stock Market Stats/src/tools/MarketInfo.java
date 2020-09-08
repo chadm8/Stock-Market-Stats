@@ -141,28 +141,6 @@ public class MarketInfo
     return getLargestDecreasesHelper(amountOfValues, sortedPointList, allowDayOverlaps);
   }
 
-  public String getLargestPercentageIncreasesString(int amountOfValues, boolean allowDayOverlaps)
-  {
-    return getLargestValuesStringHelper(
-        getLargestPercentageIncreases(amountOfValues, allowDayOverlaps));
-  }
-
-  public String getLargestPercentageDecreasesString(int amountOfValues, boolean allowDayOverlaps)
-  {
-    return getLargestValuesStringHelper(
-        getLargestPercentageDecreases(amountOfValues, allowDayOverlaps));
-  }
-
-  public String getLargestPointIncreasesString(int amountOfValues, boolean allowDayOverlaps)
-  {
-    return getLargestValuesStringHelper(getLargestPointIncreases(amountOfValues, allowDayOverlaps));
-  }
-
-  public String getLargestPointDecreasesString(int amountOfValues, boolean allowDayOverlaps)
-  {
-    return getLargestValuesStringHelper(getLargestPointDecreases(amountOfValues, allowDayOverlaps));
-  }
-
   /**
    * Gets the map of dates and the open and close values.
    * 
@@ -172,11 +150,11 @@ public class MarketInfo
   {
     return reader.getMap();
   }
-  
+
   /**
-   * Gets the most recent Calendar date.
+   * Gets the end Calendar date of the spreadsheet.
    * 
-   * @return The most recent Calendar date
+   * @return The end Calendar date
    */
   public Calendar getEndCalendarDate()
   {
@@ -184,35 +162,60 @@ public class MarketInfo
   }
 
   /**
-   * Gets the most recent date.
+   * Gets the end date of the spreadsheet.
    * 
-   * @return The most recent date
+   * @return The end date
    */
   public String getEndDate()
   {
     return reader.getEndDateInSheet();
   }
-  
+
+  /**
+   * Gets the end price of the spreadsheet.
+   * 
+   * @return The end price
+   */
   public Double getEndPrice()
   {
     return reader.getEndPriceInSheet();
   }
-  
+
+  /**
+   * Gets the end volume of the spreadsheet.
+   * 
+   * @return The end volume
+   */
   public Double getEndVolume()
   {
     return reader.getEndVolumeInSheet();
   }
-  
+
+  /**
+   * Gets the start date of the spreadsheet.
+   * 
+   * @return The start date
+   */
   public String getStartDate()
   {
     return reader.getStartDateInSheet();
   }
-  
+
+  /**
+   * Gets the start price of the spreadsheet.
+   * 
+   * @return The start price
+   */
   public Double getStartPrice()
   {
     return reader.getStartPriceInSheet();
   }
-  
+
+  /**
+   * Gets the start volume of the spreadsheet.
+   * 
+   * @return The start volume
+   */
   public Double getStartVolume()
   {
     return reader.getStartVolumeInSheet();
@@ -257,8 +260,8 @@ public class MarketInfo
 
         if (!overlapped)
         {
-            tmp.add(list.get(i));
-            amOfVals--;
+          tmp.add(list.get(i));
+          amOfVals--;
         }
       }
     }
@@ -315,27 +318,6 @@ public class MarketInfo
     }
 
     return tmp;
-  }
-
-  private String getLargestValuesStringHelper(ArrayList<Map.Entry<String, Double>> list)
-  {
-    Iterator<Map.Entry<String, Double>> it = list.iterator();
-    String retVal = "";
-    // int counter = 1;
-
-    while (it.hasNext())
-    {
-      Map.Entry<String, Double> entry = it.next();
-      String key = entry.getKey();
-      Double val = entry.getValue();
-
-      // retVal += String.format("%d. %s: %.2f\n", counter, key, val);
-      retVal += String.format("%s: %.2f\n", key, val);
-
-      // counter++;
-    }
-
-    return retVal;
   }
 
 }

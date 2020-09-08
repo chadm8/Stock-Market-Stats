@@ -37,12 +37,6 @@ public class SpreadSheetReader
   {
     map = new LinkedHashMap<>();
     this.fileInputPath = fileInputPath;
-    startDate = null;
-    endDate = null;
-    startVolume = null;
-    endVolume = null;
-    startPrice = null;
-    endPrice = null;
   }
 
   /**
@@ -138,7 +132,8 @@ public class SpreadSheetReader
 
       endDate = date;
       endPrice = handleParse(lineData[4]);
-      endVolume = handleParse(lineData[6]);;
+      endVolume = handleParse(lineData[6]);
+      ;
 
     }
     catch (IOException e)
@@ -176,11 +171,17 @@ public class SpreadSheetReader
       map.put(lineData[0], values);
     }
   }
-  
+
+  /**
+   * A helper method to parse the given value.
+   * 
+   * @param value The value as a String
+   * @return The value as a Double
+   */
   private Double handleParse(String value)
   {
     Double retVal = null;
-    
+
     try
     {
       retVal = Double.parseDouble(value);
@@ -189,7 +190,7 @@ public class SpreadSheetReader
     {
       nfe.printStackTrace();
     }
-    
+
     return retVal;
   }
 

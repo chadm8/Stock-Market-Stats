@@ -3,6 +3,13 @@ package tools;
 import java.awt.Color;
 import java.awt.Font;
 
+/**
+ * A class for storing various constants.
+ * 
+ * @author Chad Martin
+ * @version 7/16/2020
+ *
+ */
 public class GUIConstants
 {
   public static final String FONT_NAME = "TimesRoman";

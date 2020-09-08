@@ -43,6 +43,13 @@ public class ValueChangeCalculator
 
   }
 
+  /**
+   * Creates a point and percent differential map of the day-span given for calendar days to get a vast
+   * amount of value differences.
+   * 
+   * @param marketInfo The market information
+   * @param daySpan The day-span
+   */
   private static void calculateCalendarDayDifferentialValues(MarketInfo marketInfo, int daySpan)
   {
     boolean isDone = false;
@@ -83,6 +90,13 @@ public class ValueChangeCalculator
     }
   }
 
+  /**
+   * Creates a point and percent differential map of the day-span given for market days to get a vast
+   * amount of value differences.
+   * 
+   * @param marketInfo The market information
+   * @param daySpan The day-span
+   */
   private static void calculateMarketDayDifferentialValues(MarketInfo marketInfo, int daySpan)
   {
     boolean isDone = false;
